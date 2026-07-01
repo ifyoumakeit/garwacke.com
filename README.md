@@ -1,11 +1,34 @@
-# gatsby-starter-blog
-Gatsby starter for creating a blog
+# davegarwacke.com
 
-Install this starter (assuming Gatsby is installed) by running from your CLI:
+Personal portfolio of Dave Garwacke — Staff Software Engineer. A single-page
+site built with [Astro](https://astro.build): zero client-side JavaScript,
+accessible, and fast.
 
-`gatsby new gatsby-blog https://github.com/gatsbyjs/gatsby-starter-blog`
+## Editing content
 
-Or [view the live demo here](https://gatsby-starter-blog-demo.netlify.com/).
+All content lives in one place — [`src/data/resume.ts`](src/data/resume.ts).
+Edit the `profile`, `experience`, `skills`, `education`, and `personal` objects;
+the page rebuilds from that data.
 
-## Running in development
-`gatsby develop`
+## Develop
+
+```sh
+npm install
+npm run dev      # local dev server
+npm run build    # production build to ./dist
+npm run preview  # preview the production build
+npm run check    # type-check
+```
+
+## Structure
+
+```
+src/
+  data/resume.ts      # single source of truth for all content
+  layouts/Base.astro  # <head>, meta, Open Graph, JSON-LD
+  pages/index.astro   # the page + all styles
+  styles/global.css   # design tokens, light/dark theme, resets
+public/
+  img/                # portrait + photos
+  favicon.svg
+```

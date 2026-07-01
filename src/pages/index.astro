@@ -1,0 +1,471 @@
+---
+import Base from '../layouts/Base.astro';
+import {
+  profile,
+  experience,
+  skills,
+  education,
+  personal,
+  bands,
+  type Job,
+} from '../data/resume';
+
+// Collapse consecutive roles at the same company into one tenure block,
+// and derive the year span so tenure reads at a glance.
+type Group = { company: string; jobs: Job[]; span: string };
+
+function tenure(jobs: Job[]): string {
+  const years = jobs.flatMap((j) => (j.period.match(/\d{4}/g) ?? []).map(Number));
+  const present = jobs.some((j) => /present/i.test(j.period));
+  const min = Math.min(...years);
+  const max = present ? 'Present' : Math.max(...years);
+  return min === max ? `${min}` : `${min}–${max}`;
+}
+
+const groups: Group[] = [];
+for (const job of experience) {
+  const last = groups[groups.length - 1];
+  if (last && last.company === job.company) last.jobs.push(job);
+  else groups.push({ company: job.company, jobs: [job], span: '' });
+}
+for (const g of groups) g.span = tenure(g.jobs);
+
+---
+
+<Base>
+  <header class="site-head">
+    <div class="wrap head-inner">
+      <a href="#top" class="brand">dg</a>
+      <nav aria-label="Primary">
+        <a href="#experience">work</a>
+        <a href="#skills">skills</a>
+        <a href="#contact">contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Hero -->
+    <section id="top" class="hero">
+      <div class="wrap">
+        <p class="eyebrow">{profile.role} · {profile.company}</p>
+        <h1>{profile.name}</h1>
+        <p class="lede">{profile.tagline}</p>
+        <p class="links">
+          <a class="link-primary" href={`mailto:${profile.email}`}>{profile.email}</a>
+          <a href={profile.links.linkedin} rel="me noopener" target="_blank">LinkedIn ↗</a>
+          <a href={profile.links.github} rel="me noopener" target="_blank">GitHub ↗</a>
+        </p>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section id="about">
+      <div class="wrap">
+        <h2 class="section-label">About</h2>
+        <p class="prose lead">{profile.intro}</p>
+        <p class="meta-line">{profile.location} · {profile.pronouns}</p>
+      </div>
+    </section>
+
+    <!-- Experience: click-track rail -->
+    <section id="experience">
+      <div class="wrap">
+        <h2 class="section-label">Work</h2>
+        <ol class="rail">
+          {
+            groups.map((group) => (
+              <li class="company">
+                <div class="company-head">
+                  <h3 class="company-name">{group.company}</h3>
+                  <span class="company-span">{group.span}</span>
+                </div>
+                <ol class="roles">
+                  {group.jobs.map((job) => (
+                    <li class="role">
+                      <div class="role-head">
+                        <h4>{job.title}</h4>
+                        <span class="period">{job.period}</span>
+                      </div>
+                      <p class="role-summary">{job.summary}</p>
+                      {job.highlights && (
+                        <ul class="highlights">
+                          {job.highlights.map((h) => (
+                            <li>{h}</li>
+                          ))}
+                        </ul>
+                      )}
+                      {job.stack && (
+                        <p class="stack" aria-label="Technologies">
+                          {job.stack.join('  ·  ')}
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                </ol>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <!-- Skills -->
+    <section id="skills">
+      <div class="wrap">
+        <h2 class="section-label">Skills</h2>
+        <dl class="skills">
+          {
+            skills.map((col) => (
+              <div class="skill-row">
+                <dt>{col.group}</dt>
+                <dd>{col.items.join(', ')}</dd>
+              </div>
+            ))
+          }
+          <div class="skill-row">
+            <dt>Education</dt>
+            <dd>
+              {education.school}, {education.degree}
+              <span class="period"> · {education.period}</span>
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- Personal -->
+    <section id="personal">
+      <div class="wrap personal">
+        <h2 class="section-label">{personal.heading}</h2>
+        <p class="prose">{personal.body}</p>
+        <div class="bands">
+          <span class="bands-label">Played in</span>
+          <p class="bands-list">{bands.join('  ·  ')}</p>
+        </div>
+        <figure class="personal-photo">
+          <img
+            src="/img/drumming.jpg"
+            width="780"
+            height="520"
+            alt="Dave Garwacke playing drums"
+            loading="lazy"
+          />
+        </figure>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact">
+      <div class="wrap">
+        <h2 class="section-label">Contact</h2>
+        <p class="closer">Let's build something good.</p>
+        <p class="links">
+          <a class="link-primary" href={`mailto:${profile.email}`}>{profile.email}</a>
+          <a href={profile.links.linkedin} rel="me noopener" target="_blank">LinkedIn ↗</a>
+          <a href={profile.links.github} rel="me noopener" target="_blank">GitHub ↗</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-foot">
+    <div class="wrap">
+      <p>© {new Date().getFullYear()} {profile.name} · Kingston, NY</p>
+    </div>
+  </footer>
+</Base>
+
+<style>
+  /* ---- Header ---- */
+  .site-head {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+  .head-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 3rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+  .brand {
+    color: var(--ink);
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+  .brand:hover {
+    text-decoration: none;
+    color: var(--accent);
+  }
+  .site-head nav {
+    display: flex;
+    gap: 1.5rem;
+  }
+  .site-head nav a {
+    color: var(--muted);
+  }
+  .site-head nav a:hover {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  /* ---- Hero ---- */
+  .hero {
+    padding-top: clamp(3.5rem, 12vw, 7rem);
+    padding-bottom: clamp(2.5rem, 7vw, 4rem);
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.01em;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+  .hero h1 {
+    font-size: clamp(2.75rem, 11vw, 4.5rem);
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    line-height: 1;
+  }
+  .lede {
+    font-size: clamp(1.15rem, 3.5vw, 1.4rem);
+    color: var(--muted);
+    max-width: 32ch;
+    margin-top: 1.75rem;
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+  }
+  /* ---- Link rows ---- */
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.75rem;
+    margin-top: 1.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+  .links a {
+    color: var(--muted);
+  }
+  .links a:hover {
+    color: var(--accent);
+  }
+  .link-primary {
+    color: var(--ink) !important;
+    border-bottom: 1.5px solid var(--accent);
+    padding-bottom: 1px;
+  }
+  .link-primary:hover {
+    text-decoration: none;
+    color: var(--accent) !important;
+  }
+
+  /* ---- Prose ---- */
+  .prose {
+    color: var(--muted);
+    max-width: 60ch;
+  }
+  .prose.lead {
+    font-size: 1.2rem;
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .meta-line {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--faint);
+    margin-top: 1.5rem;
+    letter-spacing: 0;
+  }
+
+  /* ---- Experience: click-track rail ---- */
+  .rail {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+  .company-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .company-name {
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+  .company-span {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--faint);
+    white-space: nowrap;
+  }
+  .roles {
+    list-style: none;
+    padding: 0;
+    margin-left: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    border-left: 1px solid var(--rule);
+  }
+  .role {
+    position: relative;
+    padding-left: 1.75rem;
+  }
+  /* metronome tick */
+  .role::before {
+    content: '';
+    position: absolute;
+    left: -3.5px;
+    top: 0.5rem;
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+  }
+  .role-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.15rem 1rem;
+  }
+  .role-head h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .period {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--faint);
+    white-space: nowrap;
+    letter-spacing: 0;
+  }
+  .role-summary {
+    color: var(--muted);
+    margin-top: 0.5rem;
+  }
+  .highlights {
+    margin: 0.9rem 0 0;
+    padding-left: 1.1rem;
+    color: var(--muted);
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+  .highlights li::marker {
+    color: var(--faint);
+    content: '– ';
+  }
+  .stack {
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    color: var(--faint);
+    margin-top: 1rem;
+    letter-spacing: 0;
+  }
+
+  /* ---- Skills: definition list ---- */
+  .skills {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+  .skill-row {
+    display: grid;
+    grid-template-columns: 9rem 1fr;
+    gap: 1.5rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .skill-row:last-child {
+    border-bottom: 1px solid var(--rule);
+  }
+  .skill-row dt {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--faint);
+    padding-top: 0.2rem;
+  }
+  .skill-row dd {
+    margin: 0;
+    color: var(--ink);
+  }
+  .skill-row .period {
+    color: var(--faint);
+  }
+  @media (max-width: 32rem) {
+    .skill-row {
+      grid-template-columns: 1fr;
+      gap: 0.35rem;
+    }
+  }
+
+  /* ---- Personal ---- */
+  .bands {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+  }
+  .bands-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--faint);
+    margin-bottom: 0.75rem;
+  }
+  .bands-list {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.9;
+    color: var(--muted);
+  }
+  .personal-photo {
+    margin: 2rem 0 0;
+    max-width: 24rem;
+  }
+  .personal-photo img {
+    filter: grayscale(1);
+    border: 1px solid var(--rule);
+  }
+
+  /* ---- Contact ---- */
+  .closer {
+    font-size: clamp(1.5rem, 5.5vw, 2.15rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.2;
+    max-width: 18ch;
+    color: var(--ink);
+  }
+  #contact .links {
+    margin-top: 2rem;
+    font-size: 0.95rem;
+  }
+
+  /* ---- Footer ---- */
+  .site-foot {
+    padding-block: 2.5rem;
+    border-top: 1px solid var(--rule);
+  }
+  .site-foot p {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--faint);
+    letter-spacing: 0;
+  }
+</style>

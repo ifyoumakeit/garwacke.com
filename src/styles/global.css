@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------------------
-   Design tokens — near-monochrome, one restrained iris accent.
+   Design tokens — near-monochrome, one restrained emerald accent.
    Mono carries structure; humanist sans carries prose.
 --------------------------------------------------------------------------- */
 :root {
@@ -9,7 +9,7 @@
   --muted: #6e6b7b;
   --faint: #a6a2b0;
   --rule: #e8e6ec;
-  --accent: #5b4be6;
+  --accent: #047857;
 
   --maxw: 44rem;
   --font-sans: 'Space Grotesk Variable', ui-sans-serif, system-ui, -apple-system,
@@ -25,7 +25,7 @@
     --muted: #9b96a8;
     --faint: #625d70;
     --rule: #201d2a;
-    --accent: #8b7bff;
+    --accent: #34d399;
   }
 }
 

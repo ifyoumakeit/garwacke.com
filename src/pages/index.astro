@@ -40,6 +40,7 @@ for (const g of groups) g.span = tenure(g.jobs);
         <a href="#experience">work</a>
         <a href="#skills">skills</a>
         <a href="#contact">contact</a>
+        <button id="theme-toggle" type="button" aria-label="Toggle dark mode">◐</button>
       </nav>
     </div>
   </header>
@@ -221,6 +222,18 @@ for (const g of groups) g.span = tenure(g.jobs);
   .site-head nav a:hover {
     color: var(--accent);
     text-decoration: none;
+  }
+  #theme-toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: var(--muted);
+    cursor: pointer;
+    line-height: 1;
+  }
+  #theme-toggle:hover {
+    color: var(--accent);
   }
 
   /* ---- Hero ---- */
@@ -498,3 +511,18 @@ for (const g of groups) g.span = tenure(g.jobs);
     letter-spacing: 0;
   }
 </style>
+
+<script>
+  const toggle = document.getElementById('theme-toggle');
+  const root = document.documentElement;
+
+  const effectiveTheme = () =>
+    root.dataset.theme ??
+    (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+  toggle?.addEventListener('click', () => {
+    const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    localStorage.setItem('theme', next);
+  });
+</script>

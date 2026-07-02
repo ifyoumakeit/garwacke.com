@@ -18,8 +18,17 @@
     monospace;
 }
 
+:root[data-theme='dark'] {
+  --paper: #0b0a0f;
+  --ink: #edebf2;
+  --muted: #9b96a8;
+  --faint: #625d70;
+  --rule: #201d2a;
+  --accent: #34d399;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --paper: #0b0a0f;
     --ink: #edebf2;
     --muted: #9b96a8;

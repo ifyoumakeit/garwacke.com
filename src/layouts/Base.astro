@@ -52,6 +52,7 @@ const jsonLd = {
     <link rel="apple-touch-icon" href="/img/dave.jpg" />
 
     <script is:inline>
+      document.documentElement.classList.add('js');
       const saved = localStorage.getItem('theme');
       if (saved === 'light' || saved === 'dark') {
         document.documentElement.dataset.theme = saved;
